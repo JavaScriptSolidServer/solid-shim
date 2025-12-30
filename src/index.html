@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solid Shim - Data Browser</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+  </style>
+</head>
+<body id="PageBody">
+  <header id="PageHeader">
+    <!-- Header content will be populated by solid-ui -->
+  </header>
+
+  <main id="DummyUUID">
+    <!-- Main content area for panes -->
+  </main>
+
+  <footer id="PageFooter">
+    <!-- Footer content will be populated by solid-ui -->
+  </footer>
+
+  <script>
+    // Initialize the data browser when the page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      if (window.panes && window.panes.runDataBrowser) {
+        // Get URI from URL hash or query parameter
+        const urlParams = new URLSearchParams(window.location.search)
+        const uri = urlParams.get('uri') || window.location.hash.slice(1) || null
+        window.panes.runDataBrowser(uri)
+      }
+    })
+  </script>
+</body>
+</html>
