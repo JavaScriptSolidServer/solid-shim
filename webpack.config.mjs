@@ -12,6 +12,10 @@ const solidUiJssPath = fs.realpathSync(path.join(nodeModules, 'solid-ui-jss'))
 const solidLogicJssPath = fs.realpathSync(path.join(nodeModules, 'solid-logic-jss'))
 const solidPanesJssPath = fs.realpathSync(path.join(nodeModules, 'solid-panes-jss'))
 
+// Use ESM versions to avoid UMD global dependency issues
+const solidUiJssEsm = path.join(solidUiJssPath, 'dist/solid-ui.esm.js')
+const solidLogicJssEsm = path.join(solidLogicJssPath, 'dist/solid-logic.esm.js')
+
 export default {
   mode: isProduction ? 'production' : 'development',
   entry: './src/index.ts',
@@ -43,14 +47,17 @@ export default {
       'node_modules'
     ],
     alias: {
-      // Map pane package globals to actual modules (using resolved real paths)
+      // Map pane package globals to ESM modules (avoid UMD global issues)
       '$rdf': 'rdflib',
-      'UI': solidUiJssPath,
-      'SolidLogic': solidLogicJssPath,
-      // Explicitly map JSS packages to real paths
-      'solid-ui-jss': solidUiJssPath,
-      'solid-logic-jss': solidLogicJssPath,
-      'solid-panes-jss': solidPanesJssPath
+      'UI': solidUiJssEsm,
+      'SolidLogic': solidLogicJssEsm,
+      // Explicitly map JSS packages to ESM versions
+      'solid-ui-jss': solidUiJssEsm,
+      'solid-logic-jss': solidLogicJssEsm,
+      'solid-panes-jss': solidPanesJssPath,
+      // Redirect original packages to JSS versions
+      'solid-logic': solidLogicJssEsm,
+      'solid-ui': solidUiJssEsm
     },
     fallback: {
       // Node.js polyfills for browser
