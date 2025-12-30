@@ -7,6 +7,7 @@
 
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes-jss'
+import * as UI from 'solid-ui-jss'
 import { authn, solidLogicSingleton, authSession, store } from 'solid-logic-jss'
 import { versionInfo } from './versionInfo'
 import { shimStyle } from './styles'
@@ -16,6 +17,7 @@ const global: any = window
 // Expose globals - same interface as mashlib
 global.$rdf = $rdf
 global.panes = panes
+global.UI = UI
 global.SolidLogic = {
   authn,
   authSession,
@@ -78,4 +80,4 @@ global.dump = dump
 
 // Export for ES modules
 export { versionInfo }
-export { $rdf, panes, authn, authSession, store, solidLogicSingleton }
+export { $rdf, panes, UI, authn, authSession, store, solidLogicSingleton }
