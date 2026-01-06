@@ -1,6 +1,6 @@
 {
   "name": "solid-shim",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Minimal Solid data browser using solid-panes-jss with solid-oidc authentication",
   "type": "module",
   "main": "dist/solid-shim.js",
