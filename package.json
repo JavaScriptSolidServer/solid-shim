@@ -1,6 +1,6 @@
 {
   "name": "solid-shim",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Minimal Solid data browser using solid-panes-jss with solid-oidc authentication",
   "type": "module",
   "main": "dist/solid-shim.js",
@@ -13,7 +13,9 @@
     }
   },
   "files": [
-    "dist/",
+    "dist/*.js",
+    "dist/*.d.ts",
+    "dist/index.html",
     "README.md",
     "LICENSE"
   ],
@@ -21,8 +23,9 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && npm run build-dist",
     "build-dist": "webpack --progress",
+    "build-prod": "npm run clean && NODE_ENV=production webpack --progress",
     "start": "webpack serve --open",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build-prod"
   },
   "repository": {
     "type": "git",

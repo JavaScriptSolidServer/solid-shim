@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Marie Curie - Person</title>
+</head>
+<body>
+
+<script type="application/ld+json">
+{
+  "@context": {
+    "schema": "http://schema.org/"
+  },
+  "@id": "#me",
+  "@type": "schema:Person",
+  "schema:name": "Marie Curie",
+  "schema:givenName": "Marie",
+  "schema:familyName": "Curie",
+  "schema:jobTitle": "Physicist and Chemist",
+  "schema:description": "First woman to win a Nobel Prize. Pioneer in radioactivity research.",
+  "schema:birthDate": "1867-11-07",
+  "schema:image": { "@id": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Marie_Curie_c1920.jpg/440px-Marie_Curie_c1920.jpg" },
+  "schema:url": { "@id": "https://en.wikipedia.org/wiki/Marie_Curie" },
+  "schema:knows": {
+    "@id": "#pierre",
+    "@type": "schema:Person",
+    "schema:name": "Pierre Curie",
+    "schema:jobTitle": "Physicist"
+  }
+}
+</script>
+
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; }
+  #content { padding: 0; }
+</style>
+
+<script>
+  async function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function init() {
+    // Load solid-shim (mashlib replacement) for RDF parsing and auth
+    await loadScript('dist/mashlib.min.js');
+
+    // Wait for $rdf to be ready
+    await new Promise(resolve => {
+      const check = setInterval(() => {
+        if (typeof $rdf !== 'undefined' && typeof SolidLogic !== 'undefined') {
+          clearInterval(check);
+          resolve();
+        }
+      }, 50);
+    });
+
+    // Parse the JSON-LD data island manually
+    const island = document.querySelector('script[type="application/ld+json"]');
+    if (island) {
+      const store = SolidLogic.store;
+      const baseUri = window.location.href.split('#')[0];
+
+      const jsonld = JSON.parse(island.textContent);
+
+      function addTriples(node, subjectUri) {
+        const subject = $rdf.sym(subjectUri);
+
+        if (node['@type']) {
+          const type = node['@type'].replace('schema:', 'http://schema.org/');
+          store.add(subject, $rdf.sym('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), $rdf.sym(type));
+        }
+
+        Object.keys(node).forEach(key => {
+          if (key.startsWith('@')) return;
+          const pred = key.replace('schema:', 'http://schema.org/');
+          const val = node[key];
+
+          if (typeof val === 'object' && val['@id']) {
+            const uri = val['@id'].startsWith('http') ? val['@id'] : baseUri + val['@id'];
+            store.add(subject, $rdf.sym(pred), $rdf.sym(uri));
+          } else if (typeof val === 'object' && val['@type']) {
+            const blankId = baseUri + '#_b' + Math.random().toString(36).substr(2,6);
+            store.add(subject, $rdf.sym(pred), $rdf.sym(blankId));
+            addTriples(val, blankId);
+          } else if (typeof val === 'string') {
+            store.add(subject, $rdf.sym(pred), val);
+          }
+        });
+      }
+
+      const rootId = baseUri + (jsonld['@id'] || '#thing');
+      addTriples(jsonld, rootId);
+      console.log('Parsed JSON-LD into store');
+    }
+
+    // Load toolbar and pane
+    await loadScript('src/toolbar.js');
+    await loadScript('src/person.js');
+
+    // Build the UI
+    const subject = $rdf.sym(window.location.href.split('#')[0] + '#me');
+    const context = {
+      dom: document,
+      session: { store: SolidLogic.store }
+    };
+
+    // Create content area first
+    const content = document.createElement('div');
+    content.id = 'content';
+
+    // View renderers
+    const views = {
+      profile: () => {
+        if (window.SchemaPersonPane) {
+          return window.SchemaPersonPane.render(subject, context);
+        }
+        return document.createTextNode('No pane available');
+      },
+      data: () => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding: 32px; max-width: 800px; margin: 0 auto; font-family: system-ui;';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = 'RDF Data';
+        h2.style.cssText = 'margin: 0 0 16px; color: #1e293b;';
+        div.appendChild(h2);
+
+        const table = document.createElement('table');
+        table.style.cssText = 'width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);';
+
+        const store = SolidLogic.store;
+        const stmts = store.statementsMatching(subject, null, null);
+
+        stmts.forEach(st => {
+          const tr = document.createElement('tr');
+          tr.style.cssText = 'border-bottom: 1px solid #e2e8f0;';
+
+          const tdPred = document.createElement('td');
+          tdPred.style.cssText = 'padding: 12px; color: #7c3aed; font-weight: 500; width: 30%;';
+          tdPred.textContent = st.predicate.value.split(/[#\/]/).pop();
+
+          const tdObj = document.createElement('td');
+          tdObj.style.cssText = 'padding: 12px; color: #334155;';
+          if (st.object.termType === 'NamedNode') {
+            const a = document.createElement('a');
+            a.href = st.object.value;
+            a.textContent = st.object.value;
+            a.style.cssText = 'color: #2563eb; text-decoration: none;';
+            tdObj.appendChild(a);
+          } else {
+            tdObj.textContent = st.object.value;
+          }
+
+          tr.appendChild(tdPred);
+          tr.appendChild(tdObj);
+          table.appendChild(tr);
+        });
+
+        div.appendChild(table);
+        return div;
+      },
+      source: () => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding: 32px; max-width: 800px; margin: 0 auto;';
+
+        const h2 = document.createElement('h2');
+        h2.textContent = 'JSON-LD Source';
+        h2.style.cssText = 'margin: 0 0 16px; color: #1e293b; font-family: system-ui;';
+        div.appendChild(h2);
+
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'background: #1e293b; color: #e2e8f0; padding: 24px; border-radius: 12px; overflow-x: auto; font-size: 14px; line-height: 1.5;';
+        const island = document.querySelector('script[type="application/ld+json"]');
+        if (island) {
+          const json = JSON.parse(island.textContent);
+          pre.textContent = JSON.stringify(json, null, 2);
+        }
+        div.appendChild(pre);
+        return div;
+      }
+    };
+
+    // Switch view function
+    function switchView(viewName) {
+      content.innerHTML = '';
+      content.appendChild(views[viewName]());
+    }
+
+    // Create toolbar with full functionality
+    const toolbar = window.SchemaToolbar.render({
+      dom: document,
+      subject: subject,
+      theme: { primary: '#667eea', bg: '#eff6ff' },
+      onViewChange: switchView,
+      onEditToggle: (editMode) => {
+        console.log('Edit mode:', editMode);
+        // TODO: Enable inline editing of fields
+      },
+      onShare: () => {
+        alert('Share: Would open ACL editor for ' + subject.value);
+      },
+      onDelete: () => {
+        alert('Delete: Would remove ' + subject.value);
+      },
+      onRefresh: () => {
+        window.location.reload();
+      }
+    });
+
+    document.body.appendChild(toolbar);
+    document.body.appendChild(content);
+
+    // Initial render
+    switchView('profile');
+    console.log('Rendered SchemaPersonPane with toolbar');
+  }
+  init();
+</script>
+
+</body>
+</html>

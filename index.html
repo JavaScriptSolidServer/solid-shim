@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SolidOS Browser</title>
+  <title>jsonos Browser</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mashlib/dist/mash.css" />
   <!-- Using solid-shim instead of mashlib -->
   <script src="dist/solid-shim.min.js"></script>
@@ -342,8 +342,8 @@
 
   <header class="header">
     <div class="header-content">
-      <h1>SolidOS Browser</h1>
-      <p class="header-subtitle">Explore and manage your decentralized data</p>
+      <h1>jsonos Browser</h1>
+      <p class="header-subtitle">The JSON Operating System for the Web</p>
 
       <div class="search-container">
         <input
@@ -379,7 +379,7 @@
   <main class="browser-container">
     <div class="card">
       <div id="welcome" class="welcome-message">
-        <h2>Welcome to SolidOS Browser</h2>
+        <h2>Welcome to jsonos</h2>
         <p>Enter a URL above or click one of the quick links to get started.</p>
         <p>Log in with your WebID to access private data and edit resources.</p>
       </div>
@@ -398,8 +398,8 @@
 
   <footer class="footer">
     <p>
-      Powered by <a href="https://github.com/JavaScriptSolidServer/solid-shim" target="_blank">solid-shim</a> |
-      <a href="https://solid-docs.github.io/docs/" target="_blank">Developer Docs</a> |
+      Powered by <a href="https://jsonos.com" target="_blank">jsonos</a> |
+      <a href="https://github.com/json-os" target="_blank">GitHub</a> |
       <a href="https://solidproject.org/" target="_blank">Solid Project</a>
     </p>
   </footer>
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(location.search)
     params.set('uri', uri)
     window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`)
-    document.title = `SolidOS Browser - ${uri}`
+    document.title = `jsonos - ${uri}`
 
     // Load the resource
     const subject = $rdf.sym(uri)
