@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>@view Test - solid-shim</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+<!--
+  @view Test - Self-Describing JSON-LD
+
+  This JSON-LD includes "@view" which tells solid-shim which pane to use.
+  The data describes its own preferred view - no type mapping needed.
+
+  See proposal: https://github.com/w3c/json-ld-syntax/issues/384
+-->
+<script type="application/ld+json">
+{
+  "@context": {
+    "schema": "http://schema.org/"
+  },
+  "@id": "#me",
+  "@type": "schema:Person",
+  "@view": "https://jsonos.com/examples/src/panes/person.js",
+  "schema:name": "Marie Curie",
+  "schema:givenName": "Marie",
+  "schema:familyName": "Curie",
+  "schema:jobTitle": "Physicist and Chemist",
+  "schema:description": "First woman to win a Nobel Prize. Pioneer in radioactivity research.",
+  "schema:birthDate": "1867-11-07",
+  "schema:image": { "@id": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Marie_Curie_c1920.jpg/440px-Marie_Curie_c1920.jpg" },
+  "schema:url": { "@id": "https://en.wikipedia.org/wiki/Marie_Curie" }
+}
+</script>
+
+<!-- Load solid-shim and render using @view -->
+<script src="dist/mashlib.js"></script>
+<script>
+  // That's it! One line to render using @view
+  solidShim.renderView().then(result => {
+    if (result) {
+      console.log('[test] Rendered subject:', result.subject.value);
+      console.log('[test] Store has', result.store.length, 'statements');
+    }
+  });
+</script>
+
+</body>
+</html>

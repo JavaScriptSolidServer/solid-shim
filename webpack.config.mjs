@@ -21,9 +21,10 @@ export default {
   entry: './src/index.ts',
   output: {
     path: path.resolve(process.cwd(), 'dist'),
-    filename: isProduction ? 'solid-shim.min.js' : 'solid-shim.js',
+    // Use mashlib.min.js for JSS compatibility (drop-in replacement)
+    filename: isProduction ? 'mashlib.min.js' : 'mashlib.js',
     library: {
-      name: 'SolidShim',
+      name: 'Mashlib',
       type: 'umd',
       umdNamedDefine: true
     },
@@ -85,9 +86,10 @@ export default {
   },
   devtool: isProduction ? 'source-map' : 'eval-source-map',
   devServer: {
-    static: {
-      directory: path.resolve(process.cwd(), 'dist')
-    },
+    static: [
+      { directory: path.resolve(process.cwd(), 'dist') },
+      { directory: path.resolve(process.cwd()) }
+    ],
     port: 8080,
     hot: true,
     open: true
