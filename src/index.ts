@@ -252,13 +252,18 @@ export { $rdf, panes, UI, authn, authSession, store, solidLogicSingleton }
 export { renderView, parseJsonLdToStore }
 export type { PaneModule, PaneContext }
 
-// Auto-render: if script tag has data-auto-render attribute, render automatically
-// Usage: <script src="solid-shim.min.js" data-auto-render></script>
+// Auto-render: if JSON-LD with @view exists, render automatically
+// No attribute needed - @view in data IS the opt-in
 if (typeof document !== 'undefined') {
-  const scripts = document.querySelectorAll('script[src*="solid-shim"], script[src*="mashlib"]')
-  scripts.forEach(script => {
-    if (script.hasAttribute('data-auto-render')) {
-      renderView()
+  const jsonLdScript = document.querySelector('script[type="application/ld+json"]')
+  if (jsonLdScript) {
+    try {
+      const data = JSON.parse(jsonLdScript.textContent || '')
+      if (data['@view']) {
+        renderView()
+      }
+    } catch (e) {
+      // Invalid JSON-LD, skip auto-render
     }
-  })
+  }
 }
