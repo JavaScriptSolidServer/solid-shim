@@ -125,8 +125,9 @@ async function renderView(options: {
   let pane: PaneModule | undefined
   if (jsonld['@view']) {
     try {
-      console.log(`[solid-shim] Loading @view: ${jsonld['@view']}`)
-      const paneModule = await import(/* webpackIgnore: true */ jsonld['@view'])
+      const viewUrl = new URL(jsonld['@view'], window.location.href).href
+      console.log(`[solid-shim] Loading @view: ${viewUrl}`)
+      const paneModule = await import(/* webpackIgnore: true */ viewUrl)
       pane = paneModule.default || paneModule
     } catch (err) {
       console.warn(`[solid-shim] Failed to load @view "${jsonld['@view']}":`, err)
